@@ -24,11 +24,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # 4️⃣ Construir el proyecto (Vite → dist/)
+      # 4️⃣ Ejecutar tests 🔥
+      - name: Run tests
+        run: npm run test
+
+      # 5️⃣ Construir el proyecto
       - name: Build project
         run: npm run build
-
-      # 5️⃣ Configurar SSH
+      # 6️⃣ Configurar SSH
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -37,54 +40,12 @@ jobs:
           echo -e "Host *\n  StrictHostKeyChecking no\n  IdentitiesOnly yes" > ~/.ssh/config
           chmod 600 ~/.ssh/config
 
-      # 6️⃣ Limpiar carpeta del servidor
+      # 7️⃣ Limpiar carpeta del servidor
       - name: Clean server folder
         run: |
           ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} "rm -rf /var/www/alumnos/${{ secrets.USERNAME }}/*"
 
-      # 7️⃣ Subir SOLO dist/
+      # 8️⃣ Subir SOLO dist/
       - name: Deploy dist folder
         run: |
           scp -r dist/* ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/alumnos/${{ secrets.USERNAME }}/
-
-
-
-
-
-
-
-
-
-
-# name: Deploy HTML to Server
-
-
-# on:
-#   push:
-#     branches: ["main",]
-
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-
-
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v4
-
-
-#       - name: Setup SSH
-#         run: |
-#           mkdir -p ~/.ssh
-#           echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
-#           chmod 600 ~/.ssh/id_ed25519
-#           echo -e "Host *\n  StrictHostKeyChecking no\n  IdentitiesOnly yes" > ~/.ssh/config
-#           chmod 600 ~/.ssh/config
-
-
-
-
-#       - name: Deploy via SCP
-#         run: |
-#           ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} "rm -rf /var/www/alumnos/${{ secrets.USERNAME }}/*"
-#           scp -o StrictHostKeyChecking=no -r ./ ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/var/www/alumnos/${{ secrets.USERNAME }}/
